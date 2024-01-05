@@ -116,7 +116,7 @@ else:
     plt.ylabel('Price (USD)')
 
     # Set the plot title
-    plt.title(stock_ticker + " Bollinger Bands Price Prediction")
+    plt.title(stock_ticker.upper() + " Bollinger Bands Price Prediction")
 
     # Show the legend
     plt.legend(loc='lower left')
