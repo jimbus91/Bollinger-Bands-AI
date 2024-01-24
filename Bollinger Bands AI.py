@@ -1,4 +1,4 @@
-import os
+import warnings
 import datetime
 import numpy as np
 import pandas as pd
@@ -7,23 +7,11 @@ import matplotlib.pyplot as plt
 import matplotlib.style as style
 import matplotlib.dates as mdates
 from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.experimental import enable_hist_gradient_boosting
 
-# Ask the user for the stock ticker symbol
-stock_ticker = input("Enter the stock ticker symbol: ")
+# Suppress specific warnings
+warnings.filterwarnings('ignore', category=FutureWarning, message="Series.__getitem__ treating keys as positions is deprecated.*")
 
-# Get today's date
-today = datetime.datetime.now().date()
-
-# Subtract 365 days from today's date
-one_year_ago = today - datetime.timedelta(days=365)
-
-# Use the date one year ago as the start parameter in yf.download()
-data = yf.download(stock_ticker, start=one_year_ago)
-
-if data.empty:
-    print("No data available for the stock ticker symbol: ", stock_ticker)
-else:
+def fetch_and_predict(stock_ticker, data):
     # Convert the date column to a datetime object
     data['Date'] = pd.to_datetime(data.index)
 
@@ -123,3 +111,26 @@ else:
 
     # Show the plot
     plt.show()
+
+# Function to get a valid stock ticker from the user
+def get_valid_stock_ticker():
+    while True:
+        stock_ticker = input("Enter the stock ticker symbol (or type 'exit' to quit): ")
+        if stock_ticker.lower() == 'exit':
+            return None, None
+        data = yf.download(stock_ticker, start=one_year_ago, end=today)
+        if data.empty:
+            print(f"No data available for the stock ticker symbol: {stock_ticker}. Please try a different one.")
+        else:
+            return stock_ticker, data
+
+# Main loop
+while True:
+    today = datetime.datetime.now().date()
+    one_year_ago = today - datetime.timedelta(days=365)
+
+    stock_ticker, data = get_valid_stock_ticker()
+    if stock_ticker is None:
+        break
+    
+    fetch_and_predict(stock_ticker, data)
